@@ -1,0 +1,54 @@
+﻿@page "/breve"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
+    <MudGrid>
+        <MudItem xs="9">
+            <MudText Typo="Typo.h3" GutterBottom="true">Fondo Acomea Breve Termine</MudText>
+        </MudItem>
+        <MudItem xs="3">
+            <InputFile id="fileInput" OnChange="UploadFile" hidden accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></InputFile>
+            <MudButton Class="d-flex align-center justify-center mud-width-full mt-3"
+                       HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Success"
+                       StartIcon="@Icons.Filled.UploadFile"
+                       for="fileInput">
+                Upload excel
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+    <MudCard Outlined="true">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Andamento valore quote</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (PeriodoTemporale.Any())
+            {
+                <Chart Config="_config1"></Chart>
+            }
+            else
+            {
+                <MudProgressCircular></MudProgressCircular>
+            }
+        </MudCardContent>
+    </MudCard>
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Andamento valore investimento</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (PeriodoTemporale.Any())
+            {
+                <Chart Config="_config2"></Chart>
+            }
+            else
+            {
+                <MudProgressCircular></MudProgressCircular>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudContainer>

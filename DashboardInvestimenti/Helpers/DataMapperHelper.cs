@@ -1,0 +1,52 @@
+﻿using DashboardInvestimenti.Models;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DashboardInvestimenti.Helpers
+{
+    public static class DataMapperHelper
+    {
+        public static List<ChartModel> MapToChartModel(List<ExcelModel> models)
+        {
+            var result = new List<ChartModel>();
+            foreach (var model in models)
+            {
+                result.Add(MapToChartModel(model));
+            }
+
+            return result;
+        }
+
+        public static ChartModel MapToChartModel(ExcelModel model)
+        {
+            var result = new ChartModel
+            {
+                Data = model.Data
+            };
+
+            var cleanedValoreQuota = CleanString(model.ValoreQuota);
+            var cleanedValoreInvestimento = CleanString(model.ValoreDisponibile);
+
+            if (double.TryParse(cleanedValoreQuota, NumberStyles.Float, new CultureInfo("en-US"), out double parsedValoreQuota))
+            {
+                result.ValoreQuota = parsedValoreQuota;
+            }
+
+            if (double.TryParse(cleanedValoreInvestimento, NumberStyles.Float, new CultureInfo("en-US"), out double parsedValoreInvestimento))
+            {
+                result.ValoreInvestimento = parsedValoreInvestimento;
+            }
+
+            return result;
+        }
+
+        private static string CleanString(string input)
+        {
+            return input?.Replace("€", string.Empty).Trim();
+        }
+    }
+}
