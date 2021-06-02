@@ -1,3 +1,4 @@
+using Blazored.SessionStorage;
 using DashboardInvestimenti.Contracts;
 using DashboardInvestimenti.Models;
 using DashboardInvestimenti.Services;
@@ -22,14 +23,18 @@ namespace DashboardInvestimenti
 
         public static async Task Main(string[] args)
         {
-            await DebugDelayAsync();
+            //await DebugDelayAsync();
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
             builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 
             builder.Services.AddMudServices();
+
+            builder.Services.AddBlazoredSessionStorage();
+
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
             builder.Services.AddTransient<IExcelReader<ExcelModel>, ExcelReader>();
 
             await builder.Build().RunAsync();

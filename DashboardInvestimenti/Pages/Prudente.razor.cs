@@ -14,11 +14,15 @@ using System.Collections.Generic;
 using DashboardInvestimenti.Helpers;
 using MudBlazor;
 using Microsoft.Extensions.Configuration;
+using Blazored.SessionStorage;
 
 namespace DashboardInvestimenti.Pages
 {
     public partial class Prudente
     {
+        [Inject]
+        public ISessionStorageService SessionStorageService { get; set; }
+
         [Inject]
         public IExcelReader<ExcelModel> ExcelReader { get; set; }
 
@@ -31,7 +35,7 @@ namespace DashboardInvestimenti.Pages
         [Inject]
         public IConfiguration Configuration { get; set; }
 
-        public string PathToFile => Configuration["ExcelFile:breve"];
+        public static string PrudenteSessionKey => "prudenteFileRows";
 
         public List<string> PeriodoTemporale { get; set; } = new();
         public List<double> ValoreQuote { get; set; } = new();
@@ -40,58 +44,57 @@ namespace DashboardInvestimenti.Pages
         private LineConfig _config1;
         private LineConfig _config2;
 
+        private bool _isFileLoaded;
+
         protected override async Task OnInitializedAsync()
         {
-            byte[] excelContent = await GetContentFileFromPath(PathToFile);
-            List<ExcelModel> fileRows = ReadContent(excelContent);
-            PopulateData(fileRows);
-            GenerateCharts();
+            if (await SessionStorageService.ContainKeyAsync(PrudenteSessionKey))
+            {
+                List<ExcelModel> fileRows =
+                    await SessionStorageService.GetItemAsync<List<ExcelModel>>(PrudenteSessionKey);
+                PopulateData(fileRows);
+                GenerateCharts();
+                StateHasChanged();
+                _isFileLoaded = true;
+            }
+            else
+            {
+                _isFileLoaded = false;
+            }
         }
 
-        private List<ExcelModel> ReadContent(byte[] excelContent)
+        private List<ExcelModel> ReadContent(byte[] excelContent, bool reverse)
         {
             List<ExcelModel> fileRows = new();
             if (excelContent != null)
             {
                 fileRows = ExcelReader.Read(excelContent).ToList();
+            }
+
+            if (reverse)
+            {
                 fileRows.Reverse();
             }
 
             return fileRows;
         }
 
-        private async Task<byte[]> GetContentFileFromPath(string pathToFolder)
-        {
-            byte[] excelContent = null;
-            try
-            {
-                excelContent = await HttpClient.GetByteArrayAsync(pathToFolder);
-            }
-            catch (HttpRequestException)
-            {
-                await DialogService.ShowMessageBox("Attenzione", $"File {pathToFolder} non trovato!");
-                return excelContent;
-            }
-
-            return excelContent;
-        }
-
         private async Task UploadFile(InputFileChangeEventArgs e)
         {
-            if (e.FileCount == 1)
+            byte[] fileContent;
+            using (MemoryStream ms = new())
             {
-                var fileName = e.File.Name;
-                byte[] fileContent;
-                using (MemoryStream ms = new())
-                {
-                    await e.File.OpenReadStream().CopyToAsync(ms);
-                    fileContent = ms.ToArray();
-                }
-
-                var fileRows = ExcelReader.Read(fileContent).ToList();
-                fileRows.Reverse();
-                // TODO: trying to make sense of a new functionality
+                await e.File.OpenReadStream().CopyToAsync(ms);
+                fileContent = ms.ToArray();
             }
+            List<ExcelModel> fileRows = ReadContent(fileContent, reverse: true);
+            PopulateData(fileRows);
+            GenerateCharts();
+
+            await SessionStorageService.SetItemAsync(PrudenteSessionKey, fileRows);
+            _isFileLoaded = true;
+
+            StateHasChanged();
         }
 
         private void GenerateCharts()

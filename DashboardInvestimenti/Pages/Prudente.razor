@@ -1,7 +1,6 @@
 ﻿@page "/"
 @page "/prudente"
 
-
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
     <MudGrid>
         <MudItem xs="9">
@@ -26,13 +25,13 @@
             </CardHeaderContent>
         </MudCardHeader>
         <MudCardContent>
-            @if (PeriodoTemporale.Any()) 
+            @if (_isFileLoaded)
             {
                 <Chart Config="_config1"></Chart>
             }
             else
             {
-                <MudProgressCircular></MudProgressCircular>
+                <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Nessun file caricato!</MudText>
             }
         </MudCardContent>
     </MudCard>
@@ -43,13 +42,13 @@
             </CardHeaderContent>
         </MudCardHeader>
         <MudCardContent>
-            @if (PeriodoTemporale.Any())
+            @if (_isFileLoaded)
             {
                 <Chart Config="_config2"></Chart>
             }
             else
             {
-                <MudProgressCircular></MudProgressCircular>
+                <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Nessun file caricato!</MudText>
             }
         </MudCardContent>
     </MudCard>
