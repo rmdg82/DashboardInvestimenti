@@ -116,7 +116,10 @@ namespace DashboardInvestimenti.Pages
 
         private async Task UploadFile(InputFileChangeEventArgs e)
         {
-            await CheckFileName(e);
+            if (!(await IsFileNameCorrect(e)))
+            {
+                return;
+            }
             List<ExcelModel> fileRows = await GenerateRowsFromFile(e);
             PopulateData(fileRows);
             GenerateCharts();
@@ -139,17 +142,19 @@ namespace DashboardInvestimenti.Pages
             return ReadContent(fileContent, reverse: true);
         }
 
-        private async Task CheckFileName(InputFileChangeEventArgs e)
+        private async Task<bool> IsFileNameCorrect(InputFileChangeEventArgs e)
         {
             var splittedName = e.File.Name.Split('_');
             if (splittedName.Length != 4)
             {
                 await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è corretto!");
+                return false;
             }
 
             if (splittedName[0] != NomeContratto)
             {
-                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è corretto!");
+                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è compatibile con il tipo di contratto '{NomeContratto}'!");
+                return false;
             }
 
             try
@@ -159,8 +164,11 @@ namespace DashboardInvestimenti.Pages
             }
             catch (FormatException)
             {
-                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è corretto!");
+                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non ha una data leggibile!");
+                return false;
             }
+
+            return true;
         }
 
         private void ClearOldData()
