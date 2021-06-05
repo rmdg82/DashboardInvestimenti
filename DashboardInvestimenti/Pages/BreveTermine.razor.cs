@@ -15,6 +15,7 @@ using DashboardInvestimenti.Helpers;
 using MudBlazor;
 using Microsoft.Extensions.Configuration;
 using Blazored.SessionStorage;
+using System;
 
 namespace DashboardInvestimenti.Pages
 {
@@ -27,30 +28,65 @@ namespace DashboardInvestimenti.Pages
         public IExcelReader<ExcelModel> ExcelReader { get; set; }
 
         [Inject]
-        public HttpClient HttpClient { get; set; }
-
-        [Inject]
         public IDialogService DialogService { get; set; }
 
         [Inject]
         public IConfiguration Configuration { get; set; }
 
-        public static string BreveSessionKey => "breveFileRows";
-
         public List<string> PeriodoTemporale { get; set; } = new();
         public List<double> ValoreQuote { get; set; } = new();
         public List<double> ValoreInvestimento { get; set; } = new();
 
-        private LineConfig _config1;
-        private LineConfig _config2;
+        private readonly string _breveSessionKey = "breveFileRows";
+        private string NomeContratto => Configuration["IdContratti:breve"];
+
+        private readonly LineConfig _config1 = new()
+        {
+            Options = new LineOptions
+            {
+                Responsive = true,
+                Tooltips = new Tooltips
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = true
+                },
+                Hover = new Hover
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = true
+                },
+                Legend = new Legend() { Display = false }
+            }
+        };
+
+        private readonly LineConfig _config2 = new()
+        {
+            Options = new LineOptions
+            {
+                Responsive = true,
+                Tooltips = new Tooltips
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = true
+                },
+                Hover = new Hover
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = true
+                },
+                Legend = new Legend() { Display = false }
+            },
+        };
 
         private bool _isFileLoaded;
+        private string _dataDocumento;
 
         protected override async Task OnInitializedAsync()
         {
-            if (await SessionStorageService.ContainKeyAsync(BreveSessionKey))
+            if (await SessionStorageService.ContainKeyAsync(_breveSessionKey))
             {
-                List<ExcelModel> fileRows = await SessionStorageService.GetItemAsync<List<ExcelModel>>(BreveSessionKey);
+                List<ExcelModel> fileRows =
+                    await SessionStorageService.GetItemAsync<List<ExcelModel>>(_breveSessionKey);
                 PopulateData(fileRows);
                 GenerateCharts();
                 StateHasChanged();
@@ -80,62 +116,63 @@ namespace DashboardInvestimenti.Pages
 
         private async Task UploadFile(InputFileChangeEventArgs e)
         {
+            await CheckFileName(e);
+            List<ExcelModel> fileRows = await GenerateRowsFromFile(e);
+            PopulateData(fileRows);
+            GenerateCharts();
+
+            await SessionStorageService.SetItemAsync(_breveSessionKey, fileRows);
+            _isFileLoaded = true;
+
+            StateHasChanged();
+        }
+
+        private async Task<List<ExcelModel>> GenerateRowsFromFile(InputFileChangeEventArgs e)
+        {
             byte[] fileContent;
             using (MemoryStream ms = new())
             {
                 await e.File.OpenReadStream().CopyToAsync(ms);
                 fileContent = ms.ToArray();
             }
-            List<ExcelModel> fileRows = ReadContent(fileContent, reverse: true);
-            PopulateData(fileRows);
-            GenerateCharts();
 
-            await SessionStorageService.SetItemAsync(BreveSessionKey, fileRows);
-            _isFileLoaded = true;
+            return ReadContent(fileContent, reverse: true);
+        }
 
-            StateHasChanged();
+        private async Task CheckFileName(InputFileChangeEventArgs e)
+        {
+            var splittedName = e.File.Name.Split('_');
+            if (splittedName.Length != 4)
+            {
+                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è corretto!");
+            }
+
+            if (splittedName[0] != NomeContratto)
+            {
+                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è corretto!");
+            }
+
+            try
+            {
+                var dateFromFile = DateTime.Parse(splittedName[2]);
+                _dataDocumento = dateFromFile.ToShortDateString();
+            }
+            catch (FormatException)
+            {
+                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è corretto!");
+            }
+        }
+
+        private void ClearOldData()
+        {
+            PeriodoTemporale.Clear();
+            ValoreQuote.Clear();
+            ValoreInvestimento.Clear();
+            ClearChartsData();
         }
 
         private void GenerateCharts()
         {
-            _config1 = new LineConfig
-            {
-                Options = new LineOptions
-                {
-                    Responsive = true,
-                    Tooltips = new Tooltips
-                    {
-                        Mode = InteractionMode.Nearest,
-                        Intersect = true
-                    },
-                    Hover = new Hover
-                    {
-                        Mode = InteractionMode.Nearest,
-                        Intersect = true
-                    },
-                    Legend = new Legend() { Display = false }
-                },
-            };
-
-            _config2 = new LineConfig
-            {
-                Options = new LineOptions
-                {
-                    Responsive = true,
-                    Tooltips = new Tooltips
-                    {
-                        Mode = InteractionMode.Nearest,
-                        Intersect = true
-                    },
-                    Hover = new Hover
-                    {
-                        Mode = InteractionMode.Nearest,
-                        Intersect = true
-                    },
-                    Legend = new Legend() { Display = false }
-                },
-            };
-
             foreach (var periodo in PeriodoTemporale)
             {
                 _config1.Data.Labels.Add(periodo);
@@ -144,14 +181,12 @@ namespace DashboardInvestimenti.Pages
 
             IDataset<double> valoreQuoteDataSet = new LineDataset<double>(ValoreQuote)
             {
-                Label = "Valore quote",
                 BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Red),
                 BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Red),
                 Fill = FillingMode.Disabled,
             };
             IDataset<double> valoreInvDataSet = new LineDataset<double>(ValoreInvestimento)
             {
-                Label = "Valore Investimento",
                 BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
                 BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
                 Fill = FillingMode.Disabled
@@ -161,10 +196,19 @@ namespace DashboardInvestimenti.Pages
             _config2.Data.Datasets.Add(valoreInvDataSet);
         }
 
+        private void ClearChartsData()
+        {
+            _config1.Data.Labels.Clear();
+            _config1.Data.Datasets.Clear();
+            _config2.Data.Labels.Clear();
+            _config2.Data.Datasets.Clear();
+        }
+
         private void PopulateData(List<ExcelModel> fileRows)
         {
             List<ChartModel> chartModels = DataMapperHelper.MapToChartModel(fileRows);
 
+            ClearOldData();
             foreach (var chartModel in chartModels)
             {
                 PeriodoTemporale.Add(chartModel.Data);
