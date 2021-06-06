@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Components.Forms;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Net.Http;
 using System.Collections.Generic;
 using DashboardInvestimenti.Helpers;
 using MudBlazor;
 using Microsoft.Extensions.Configuration;
 using Blazored.SessionStorage;
 using System;
+using System.Globalization;
 
 namespace DashboardInvestimenti.Pages
 {
@@ -80,6 +80,8 @@ namespace DashboardInvestimenti.Pages
 
         private bool _isFileLoaded;
         private string _dataDocumento;
+        private string _ultimoValoreQuota = string.Empty;
+        private string _guadagno = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
@@ -98,7 +100,7 @@ namespace DashboardInvestimenti.Pages
             }
         }
 
-        private List<ExcelModel> ReadContent(byte[] excelContent, bool reverse)
+        private List<ExcelModel> ReadContent(byte[] excelContent, bool reverseRows)
         {
             List<ExcelModel> fileRows = new();
             if (excelContent != null)
@@ -106,7 +108,7 @@ namespace DashboardInvestimenti.Pages
                 fileRows = ExcelReader.Read(excelContent).ToList();
             }
 
-            if (reverse)
+            if (reverseRows)
             {
                 fileRows.Reverse();
             }
@@ -139,7 +141,7 @@ namespace DashboardInvestimenti.Pages
                 fileContent = ms.ToArray();
             }
 
-            return ReadContent(fileContent, reverse: true);
+            return ReadContent(fileContent, reverseRows: true);
         }
 
         private async Task<bool> IsFileNameCorrect(InputFileChangeEventArgs e)
@@ -215,6 +217,9 @@ namespace DashboardInvestimenti.Pages
         private void PopulateData(List<ExcelModel> fileRows)
         {
             List<ChartModel> chartModels = DataMapperHelper.MapToChartModel(fileRows);
+            var lastRow = chartModels.Last();
+            _ultimoValoreQuota = lastRow.ValoreQuota.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
+            _guadagno = (lastRow.ValoreInvestimento - lastRow.Sottoscrizioni).ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
 
             ClearOldData();
             foreach (var chartModel in chartModels)

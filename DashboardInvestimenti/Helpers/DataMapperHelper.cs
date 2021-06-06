@@ -10,6 +10,8 @@ namespace DashboardInvestimenti.Helpers
 {
     public static class DataMapperHelper
     {
+        public static string DataFileCulture { get; private set; } = "en-US";
+
         public static List<ChartModel> MapToChartModel(List<ExcelModel> models)
         {
             var result = new List<ChartModel>();
@@ -30,15 +32,21 @@ namespace DashboardInvestimenti.Helpers
 
             var cleanedValoreQuota = CleanString(model.ValoreQuota);
             var cleanedValoreInvestimento = CleanString(model.ValoreDisponibile);
+            var cleanedSottiscrizioni = CleanString(model.Sottoscrizioni);
 
-            if (double.TryParse(cleanedValoreQuota, NumberStyles.Float, new CultureInfo("en-US"), out double parsedValoreQuota))
+            if (double.TryParse(cleanedValoreQuota, NumberStyles.Float, new CultureInfo(DataFileCulture), out double parsedValoreQuota))
             {
                 result.ValoreQuota = parsedValoreQuota;
             }
 
-            if (double.TryParse(cleanedValoreInvestimento, NumberStyles.Float, new CultureInfo("en-US"), out double parsedValoreInvestimento))
+            if (double.TryParse(cleanedValoreInvestimento, NumberStyles.Float, new CultureInfo(DataFileCulture), out double parsedValoreInvestimento))
             {
                 result.ValoreInvestimento = parsedValoreInvestimento;
+            }
+
+            if (double.TryParse(cleanedSottiscrizioni, NumberStyles.Float, new CultureInfo(DataFileCulture), out double parsedSottoscrizioni))
+            {
+                result.Sottoscrizioni = parsedSottoscrizioni;
             }
 
             return result;

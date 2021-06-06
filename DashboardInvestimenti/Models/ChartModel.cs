@@ -11,5 +11,6 @@ namespace DashboardInvestimenti.Models
         public string Data { get; set; }
         public double ValoreQuota { get; set; }
         public double ValoreInvestimento { get; set; }
+        public double Sottoscrizioni { get; set; }
     }
 }
