@@ -23,7 +23,7 @@ namespace DashboardInvestimenti
 
         public static async Task Main(string[] args)
         {
-            //await DebugDelayAsync();
+            await DebugDelayAsync();
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
