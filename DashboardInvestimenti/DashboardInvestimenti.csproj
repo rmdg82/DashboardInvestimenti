@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Components\" />
+    <Folder Include="Components\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
