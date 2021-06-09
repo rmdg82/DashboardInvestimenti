@@ -19,10 +19,10 @@ namespace DashboardInvestimenti.Components
         [Parameter]
         public string HeaderTitle { get; set; }
 
-        [Parameter]
+        [CascadingParameter]
         public List<string> Labels { get; set; }
 
-        [Parameter]
+        [CascadingParameter]
         public List<double> ChartValues { get; set; }
 
         [Parameter]
@@ -50,9 +50,9 @@ namespace DashboardInvestimenti.Components
             }
         };
 
-        protected override void OnInitialized()
+        protected override void OnParametersSet()
         {
-            ClearChartsData();
+            //ClearChartsData();
             foreach (var label in Labels)
             {
                 ChartConfig.Data.Labels.Add(label);

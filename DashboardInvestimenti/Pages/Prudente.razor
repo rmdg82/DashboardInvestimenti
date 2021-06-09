@@ -40,9 +40,14 @@
                 }
             </MudCardContent>
         </MudCard>*@
-    <CustomChart HeaderTitle="Andamento valore quote:"
-                 Labels="PeriodoTemporale"
-                 ChartValues="ValoreQuote" @on/>
+    <CascadingValue Value="PeriodoTemporale">
+        <CascadingValue Value="ValoreQuote">
+            <CustomChart HeaderTitle="Andamento valore quote:"
+                         
+                          />
+        </CascadingValue>
+    </CascadingValue>
+
     <MudCard Outlined="true">
         <MudCardHeader>
             <CardHeaderContent>
