@@ -37,7 +37,9 @@ namespace DashboardInvestimenti.Pages
         public List<double> ValoreQuote { get; set; } = new();
         public List<double> ValoreInvestimento { get; set; } = new();
 
-        private readonly string _breveSessionKey = "breveFileRows";
+        private readonly string _breveFileRowSessionKey = "breveFileRows";
+        private readonly string _breveDocDataSessionKey = "breveDataDoc";
+
         private string NomeContratto => Configuration["IdContratti:breve"];
 
         private readonly LineConfig _config1 = new()
@@ -79,16 +81,21 @@ namespace DashboardInvestimenti.Pages
         };
 
         private bool _isFileLoaded;
-        private string _dataDocumento;
+        private string _dataDocumento = string.Empty;
         private string _ultimoValoreQuota = string.Empty;
         private string _guadagno = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
-            if (await SessionStorageService.ContainKeyAsync(_breveSessionKey))
+            if (await SessionStorageService.ContainKeyAsync(_breveFileRowSessionKey))
             {
                 List<ExcelModel> fileRows =
-                    await SessionStorageService.GetItemAsync<List<ExcelModel>>(_breveSessionKey);
+                    await SessionStorageService.GetItemAsync<List<ExcelModel>>(_breveFileRowSessionKey);
+                if (await SessionStorageService.ContainKeyAsync(_breveDocDataSessionKey))
+                {
+                    _dataDocumento = await SessionStorageService.GetItemAsync<string>(_breveDocDataSessionKey);
+                }
+
                 PopulateData(fileRows);
                 GenerateCharts();
                 StateHasChanged();
@@ -126,7 +133,9 @@ namespace DashboardInvestimenti.Pages
             PopulateData(fileRows);
             GenerateCharts();
 
-            await SessionStorageService.SetItemAsync(_breveSessionKey, fileRows);
+            await SessionStorageService.SetItemAsync(_breveFileRowSessionKey, fileRows);
+            await SessionStorageService.SetItemAsync(_breveDocDataSessionKey, _dataDocumento);
+
             _isFileLoaded = true;
 
             StateHasChanged();

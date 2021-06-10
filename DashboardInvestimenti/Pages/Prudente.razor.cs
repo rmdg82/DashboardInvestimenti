@@ -38,6 +38,8 @@ namespace DashboardInvestimenti.Pages
         public List<double> ValoreInvestimento { get; set; } = new();
 
         private readonly string _prudenteFileRowsSessionKey = "prudenteFileRows";
+        private readonly string _prudenteDocDataSessionKey = "prudenteDataDoc";
+
         private string NomeContratto => Configuration["IdContratti:prudente"];
 
         private readonly LineConfig _config1 = new()
@@ -90,6 +92,11 @@ namespace DashboardInvestimenti.Pages
             {
                 List<ExcelModel> fileRows =
                     await SessionStorageService.GetItemAsync<List<ExcelModel>>(_prudenteFileRowsSessionKey);
+                if (await SessionStorageService.ContainKeyAsync(_prudenteDocDataSessionKey))
+                {
+                    _dataDocumento = await SessionStorageService.GetItemAsync<string>(_prudenteDocDataSessionKey);
+                }
+
                 PopulateData(fileRows);
                 GenerateCharts();
                 _isFileLoaded = true;
@@ -128,6 +135,8 @@ namespace DashboardInvestimenti.Pages
             GenerateCharts();
 
             await SessionStorageService.SetItemAsync(_prudenteFileRowsSessionKey, fileRows);
+            await SessionStorageService.SetItemAsync(_prudenteDocDataSessionKey, _dataDocumento);
+
             _isFileLoaded = true;
 
             StateHasChanged();
