@@ -85,6 +85,7 @@ namespace DashboardInvestimenti.Pages
         private string _dataDocumento = string.Empty;
         private string _ultimoValoreQuota = string.Empty;
         private string _guadagno = string.Empty;
+        private string _colorGuadagno = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
@@ -230,7 +231,11 @@ namespace DashboardInvestimenti.Pages
 
             var lastRow = chartModels.Last();
             _ultimoValoreQuota = lastRow.ValoreQuota.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
-            _guadagno = (lastRow.ValoreInvestimento - lastRow.Sottoscrizioni).ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
+
+            double guadagno = lastRow.ValoreInvestimento - lastRow.Sottoscrizioni;
+            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+            _colorGuadagno = guadagno >= 0 ? "green" : "red";
+            _guadagno = segnoGuadagno + guadagno.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
 
             ClearOldData();
             foreach (var chartModel in chartModels)
