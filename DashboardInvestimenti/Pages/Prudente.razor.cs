@@ -85,7 +85,7 @@ namespace DashboardInvestimenti.Pages
         private string _dataDocumento = string.Empty;
         private string _ultimoValoreQuota = string.Empty;
         private string _guadagno = string.Empty;
-        private string _colorGuadagno = string.Empty;
+        private string _coloreGuadagno = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
@@ -173,7 +173,7 @@ namespace DashboardInvestimenti.Pages
             try
             {
                 var dateFromFile = DateTime.Parse(splittedName[2]);
-                _dataDocumento = dateFromFile.ToShortDateString();
+                _dataDocumento = dateFromFile.ToString("d/M/yyyy");
             }
             catch (FormatException)
             {
@@ -234,7 +234,7 @@ namespace DashboardInvestimenti.Pages
 
             double guadagno = lastRow.ValoreInvestimento - lastRow.Sottoscrizioni;
             string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
-            _colorGuadagno = guadagno >= 0 ? "green" : "red";
+            _coloreGuadagno = guadagno >= 0 ? "green" : "red";
             _guadagno = segnoGuadagno + guadagno.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
 
             ClearOldData();
