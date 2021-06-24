@@ -30,7 +30,7 @@ namespace DashBoardInvestimenti.Tests
             var currentDir = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
             var combinedPath = Path.Combine(currentDir, "ExcelFiles");
 
-            _filePath = Directory.GetFiles(combinedPath).Single();
+            _filePath = Directory.GetFiles(combinedPath).SingleOrDefault();
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace DashBoardInvestimenti.Tests
 
             Assert.IsAssignableFrom<IEnumerable<ExcelModel>>(result);
             Assert.NotNull(result);
-            Assert.Equal(111, result.Count());
+            Assert.Equal(130, result.Count());
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace DashBoardInvestimenti.Tests
 
             Assert.IsAssignableFrom<IEnumerable<ExcelModel>>(result);
             Assert.NotNull(result);
-            Assert.Equal(111, result.Count());
+            Assert.Equal(130, result.Count());
         }
     }
 }
