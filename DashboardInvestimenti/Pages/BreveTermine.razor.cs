@@ -172,7 +172,7 @@ namespace DashboardInvestimenti.Pages
             try
             {
                 var dateFromFile = DateTime.Parse(splittedName[2]);
-                _dataDocumento = dateFromFile.ToShortDateString();
+                _dataDocumento = dateFromFile.ToString("d/M/yyyy");
             }
             catch (FormatException)
             {
