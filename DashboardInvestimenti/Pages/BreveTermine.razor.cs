@@ -83,6 +83,7 @@ namespace DashboardInvestimenti.Pages
         private bool _isFileLoaded;
         private string _dataDocumento = string.Empty;
         private string _ultimoValoreQuota = string.Empty;
+        private string _mediaValoreQuota = string.Empty;
         private string _guadagno = string.Empty;
         private string _colorGuadagno = string.Empty;
 
@@ -231,6 +232,8 @@ namespace DashboardInvestimenti.Pages
             var lastRow = chartModels.Last();
             _ultimoValoreQuota = lastRow.ValoreQuota.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
 
+            _mediaValoreQuota = GetAverageValoreQuota(chartModels);
+
             double guadagno = lastRow.ValoreInvestimento - lastRow.Sottoscrizioni;
             string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
             _colorGuadagno = guadagno >= 0 ? "green" : "red";
@@ -243,6 +246,14 @@ namespace DashboardInvestimenti.Pages
                 ValoreQuote.Add(chartModel.ValoreQuota);
                 ValoreInvestimento.Add(chartModel.ValoreInvestimento);
             }
+        }
+
+        private static string GetAverageValoreQuota(List<ChartModel> chartModels)
+        {
+            var sumValoriQuota = chartModels.Sum(line => line.ValoreQuota);
+            int numLines = chartModels.Count;
+
+            return (sumValoriQuota / numLines).ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
         }
     }
 }
