@@ -84,6 +84,7 @@ namespace DashboardInvestimenti.Pages
         private string _dataDocumento = string.Empty;
         private string _ultimoValoreQuota = string.Empty;
         private string _mediaValoreQuota = string.Empty;
+        private double _mediaValoreQuotaValue;
         private string _guadagno = string.Empty;
         private string _colorGuadagno = string.Empty;
 
@@ -206,6 +207,13 @@ namespace DashboardInvestimenti.Pages
                 BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Red),
                 Fill = FillingMode.Disabled,
             };
+
+            IDataset<double> valoreQuotaAverageDataSet = new LineDataset<double>(Enumerable.Repeat<double>(_mediaValoreQuotaValue, ValoreQuote.Count))
+            {
+                BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.PaleGreen),
+                Fill = FillingMode.Disabled,
+            };
+
             IDataset<double> valoreInvDataSet = new LineDataset<double>(ValoreInvestimento)
             {
                 BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
@@ -214,6 +222,7 @@ namespace DashboardInvestimenti.Pages
             };
 
             _config1.Data.Datasets.Add(valoreQuoteDataSet);
+            _config1.Data.Datasets.Add(valoreQuotaAverageDataSet);
             _config2.Data.Datasets.Add(valoreInvDataSet);
         }
 
@@ -232,7 +241,8 @@ namespace DashboardInvestimenti.Pages
             var lastRow = chartModels.Last();
             _ultimoValoreQuota = lastRow.ValoreQuota.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
 
-            _mediaValoreQuota = GetAverageValoreQuota(chartModels);
+            _mediaValoreQuotaValue = GetAverageValoreQuota(chartModels);
+            _mediaValoreQuota = _mediaValoreQuotaValue.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
 
             double guadagno = lastRow.ValoreInvestimento - lastRow.Sottoscrizioni;
             string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
@@ -248,12 +258,12 @@ namespace DashboardInvestimenti.Pages
             }
         }
 
-        private static string GetAverageValoreQuota(List<ChartModel> chartModels)
+        private static double GetAverageValoreQuota(List<ChartModel> chartModels)
         {
             var sumValoriQuota = chartModels.Sum(line => line.ValoreQuota);
             int numLines = chartModels.Count;
 
-            return (sumValoriQuota / numLines).ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
+            return Math.Round((sumValoriQuota / numLines), 4);
         }
     }
 }
