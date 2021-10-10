@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DashboardInvestimenti", "Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DashBoardInvestimenti.Tests", "DashBoardInvestimenti.Tests\DashBoardInvestimenti.Tests.csproj", "{9D7F5C85-A182-4A6B-807C-358C3166D541}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GithubActions", "GithubActions", "{AA45F4C7-0F5C-42DF-8FB7-24471EB1C832}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\DashboardInvestimenti20210605080310.yml = .github\workflows\DashboardInvestimenti20210605080310.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
