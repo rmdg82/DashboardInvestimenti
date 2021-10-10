@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+      - name: 'Show directories'
+        run: Get-ChildItem
       - name: Restore
         run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
       - name: Build
