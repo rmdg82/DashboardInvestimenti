@@ -14,16 +14,8 @@ namespace DashboardInvestimenti
 {
     public class Program
     {
-        private static async Task DebugDelayAsync()
-        {
-#if DEBUG
-            await Task.Delay(5000);
-#endif
-        }
-
         public static async Task Main(string[] args)
         {
-            //await DebugDelayAsync();
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
