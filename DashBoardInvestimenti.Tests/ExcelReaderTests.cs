@@ -1,15 +1,12 @@
-﻿using DashboardInvestimenti.Services;
+﻿using DashboardInvestimenti.Models;
+using DashboardInvestimenti.Services.Implementations;
+using Microsoft.Extensions.Configuration;
+using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using Moq;
-using Microsoft.Extensions.Configuration;
 using System.IO;
-using System.Reflection;
-using DashboardInvestimenti.Models;
+using System.Linq;
+using Xunit;
 
 namespace DashBoardInvestimenti.Tests
 {

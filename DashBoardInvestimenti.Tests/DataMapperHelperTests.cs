@@ -1,10 +1,5 @@
 ﻿using DashboardInvestimenti.Helpers;
 using DashboardInvestimenti.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DashBoardInvestimenti.Tests

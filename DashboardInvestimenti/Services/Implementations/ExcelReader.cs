@@ -1,15 +1,13 @@
-﻿using DashboardInvestimenti.Contracts;
-using DashboardInvestimenti.Models;
+﻿using DashboardInvestimenti.Models;
+using DashboardInvestimenti.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Npoi.Mapper;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DashboardInvestimenti.Services
+namespace DashboardInvestimenti.Services.Implementations
 {
     public class ExcelReader : IExcelReader<ExcelModel>
     {

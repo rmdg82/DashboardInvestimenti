@@ -1,7 +1,7 @@
 using Blazored.SessionStorage;
-using DashboardInvestimenti.Contracts;
 using DashboardInvestimenti.Models;
-using DashboardInvestimenti.Services;
+using DashboardInvestimenti.Services.Implementations;
+using DashboardInvestimenti.Services.Interfaces;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DashboardInvestimenti.Models
+﻿namespace DashboardInvestimenti.Models
 {
+    /// <summary>
+    /// Model used to map the uploaded excel files
+    /// </summary>
     public class ExcelModel
     {
         public string Data { get; set; }

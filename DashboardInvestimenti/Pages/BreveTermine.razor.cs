@@ -1,21 +1,21 @@
-﻿using ChartJs.Blazor.Common;
+﻿using Blazored.SessionStorage;
+using ChartJs.Blazor.Common;
 using ChartJs.Blazor.Common.Enums;
 using ChartJs.Blazor.LineChart;
 using ChartJs.Blazor.Util;
-using DashboardInvestimenti.Contracts;
+using DashboardInvestimenti.Helpers;
 using DashboardInvestimenti.Models;
+using DashboardInvestimenti.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using System.IO;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
-using DashboardInvestimenti.Helpers;
-using MudBlazor;
 using Microsoft.Extensions.Configuration;
-using Blazored.SessionStorage;
+using MudBlazor;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DashboardInvestimenti.Pages
 {

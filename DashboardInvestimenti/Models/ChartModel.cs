@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DashboardInvestimenti.Models
+﻿namespace DashboardInvestimenti.Models
 {
+    /// <summary>
+    /// Model used when visualizing the charts
+    /// </summary>
     public class ChartModel
     {
         public string Data { get; set; }

@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\**" />
+    <Content Remove="Components\**" />
+    <EmbeddedResource Remove="Components\**" />
+    <None Remove="Components\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="wwwroot\data\00500518304_ValoreDisponibile_2021-05-28_09-20.xlsx" />
   </ItemGroup>
 
@@ -20,8 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\" />
-    <Folder Include="Components\" />
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
