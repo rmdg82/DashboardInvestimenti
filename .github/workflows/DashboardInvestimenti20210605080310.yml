@@ -10,26 +10,39 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 5.0.x
   WORKING_DIRECTORY: DashboardInvestimenti
-  TEST_DIRECTORY: DashBoardInvestimenti
+  TEST_DIRECTORY: DashBoardInvestimenti.Tests
 jobs:
   build-and-deploy:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+      
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+      
       - name: 'Show directories'
         run: Get-ChildItem
+
+      - name: 'Show working directories'
+        run: Get-ChildItem "${{ env.WORKING_DIRECTORY }}"
+
+      - name: 'Show tests directories'
+        run: Get-ChildItem "${{ env.WORKING_DIRECTORY }}"
+
       - name: Restore
-        run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+        run: dotnet restore "${{ env.TEST_DIRECTORY }}"
+
       - name: Build
         run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+
       - name: Test
         run: dotnet test "${{ env.TEST_DIRECTORY }}"
+
       - name: Publish
         run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
         with:
