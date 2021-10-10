@@ -10,7 +10,7 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 5.0.x
   WORKING_DIRECTORY: DashboardInvestimenti
-  TEST_DIRECTORY: DashBoardInvestimenti
+  TEST_DIRECTORY: "..\DashBoardInvestimenti.Tests\"
 jobs:
   build-and-deploy:
     runs-on: windows-latest
@@ -20,12 +20,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: 'Print variables'
-      run: echo 'Working directory is ${{env.WORKING_DIRECTORY}}'
-    - name: 'Print variables'
-      run: echo 'Testing directory is ${{env.TEST_DIRECTORY}}'
-    - name: 'Print variables'
-      run: echo 'Current working directory is $(pwd)'
+    - name: 'Print currente directory'
+      run: pwd
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
