@@ -54,11 +54,5 @@ namespace DashBoardInvestimenti.Tests
             Assert.NotNull(result);
             Assert.Equal(130, result.Count());
         }
-
-        [Fact]
-        public void FakeAssertFalse()
-        {
-            Assert.True(false);
-        }
     }
 }
