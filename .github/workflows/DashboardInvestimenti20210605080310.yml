@@ -21,9 +21,11 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
     - name: 'Print variables'
-    - run: echo 'Working directory is ${{env.WORKING_DIRECTORY}}'
-    - run: echo 'Testing directory is ${{env.TEST_DIRECTORY}}'
-    - run: echo 'Current working directory is $(pwd)'
+      run: echo 'Working directory is ${{env.WORKING_DIRECTORY}}'
+    - name: 'Print variables'
+      run: echo 'Testing directory is ${{env.TEST_DIRECTORY}}'
+    - name: 'Print variables'
+      run: echo 'Current working directory is $(pwd)'
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
