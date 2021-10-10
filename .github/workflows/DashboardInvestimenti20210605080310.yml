@@ -10,7 +10,7 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 5.0.x
   WORKING_DIRECTORY: DashboardInvestimenti
-  TEST_DIRECTORY: "..\\DashBoardInvestimenti.Tests"
+  TEST_DIRECTORY: DashBoardInvestimenti
 jobs:
   build-and-deploy:
     runs-on: windows-latest
