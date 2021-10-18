@@ -16,6 +16,16 @@ namespace DashboardInvestimenti.Services.Implementations
 
         public double GetAverageValoreQuota(List<ChartModel> chartModels)
         {
+            if (chartModels is null)
+            {
+                throw new ArgumentNullException(nameof(chartModels));
+            }
+
+            if (!chartModels.Any())
+            {
+                return 0;
+            }
+
             var sumValoriQuota = chartModels.Sum(line => line.ValoreQuota);
             int numLines = chartModels.Count;
 
