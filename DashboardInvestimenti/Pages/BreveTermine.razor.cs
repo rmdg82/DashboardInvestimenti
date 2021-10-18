@@ -25,13 +25,16 @@ namespace DashboardInvestimenti.Pages
         public ISessionStorageService SessionStorageService { get; set; }
 
         [Inject]
-        public IExcelReader<ExcelModel> ExcelReader { get; set; }
-
-        [Inject]
         public IDialogService DialogService { get; set; }
 
         [Inject]
         public IConfiguration Configuration { get; set; }
+
+        [Inject]
+        public IExcelReader<ExcelModel> ExcelReader { get; set; }
+
+        [Inject]
+        public IFinancialCalculator Calculator { get; set; }
 
         public List<string> PeriodoTemporale { get; set; } = new();
         public List<double> ValoreQuote { get; set; } = new();
@@ -86,7 +89,7 @@ namespace DashboardInvestimenti.Pages
         private string _mediaValoreQuota = string.Empty;
         private double _mediaValoreQuotaValue;
         private string _guadagno = string.Empty;
-        private string _colorGuadagno = string.Empty;
+        private string _coloreGuadagno = string.Empty;
         private string _totInvestiti = string.Empty;
 
         protected override async Task OnInitializedAsync()
@@ -239,18 +242,15 @@ namespace DashboardInvestimenti.Pages
         {
             List<ChartModel> chartModels = DataMapperHelper.MapToChartModel(fileRows);
 
-            var lastRow = chartModels.Last();
-            _ultimoValoreQuota = lastRow.ValoreQuota.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
+            _ultimoValoreQuota = Calculator.ToString(chartModels.Last().ValoreQuota);
+            _mediaValoreQuotaValue = Calculator.GetAverageValoreQuota(chartModels);
+            _mediaValoreQuota = Calculator.ToString(_mediaValoreQuotaValue);
 
-            _mediaValoreQuotaValue = GetAverageValoreQuota(chartModels);
-            _mediaValoreQuota = _mediaValoreQuotaValue.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
-
-            double guadagno = lastRow.ValoreInvestimento - lastRow.Sottoscrizioni;
+            double guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
             string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
-            _colorGuadagno = guadagno >= 0 ? "green" : "red";
-            _guadagno = segnoGuadagno + guadagno.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
-
-            _totInvestiti = lastRow.Sottoscrizioni.ToString("C", CultureInfo.CreateSpecificCulture("it-IT"));
+            _coloreGuadagno = guadagno >= 0 ? "green" : "red";
+            _guadagno = segnoGuadagno + Calculator.ToString(guadagno);
+            _totInvestiti = Calculator.ToString(chartModels.Last().Sottoscrizioni);
 
             ClearOldData();
             foreach (var chartModel in chartModels)
@@ -259,14 +259,6 @@ namespace DashboardInvestimenti.Pages
                 ValoreQuote.Add(chartModel.ValoreQuota);
                 ValoreInvestimento.Add(chartModel.ValoreInvestimento);
             }
-        }
-
-        private static double GetAverageValoreQuota(List<ChartModel> chartModels)
-        {
-            var sumValoriQuota = chartModels.Sum(line => line.ValoreQuota);
-            int numLines = chartModels.Count;
-
-            return Math.Round((sumValoriQuota / numLines), 4);
         }
     }
 }
