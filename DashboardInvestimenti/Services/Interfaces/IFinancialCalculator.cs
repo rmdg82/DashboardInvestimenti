@@ -1,10 +1,6 @@
 ﻿using DashboardInvestimenti.Models;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DashboardInvestimenti.Services.Interfaces
 {
@@ -17,5 +13,9 @@ namespace DashboardInvestimenti.Services.Interfaces
         string ToString(double value);
 
         double GetAverageValoreQuota(List<ChartModel> chartModels);
+
+        string GetGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno);
+
+        string GetGuadagnoPercentuale(List<ChartModel> chartModels);
     }
 }

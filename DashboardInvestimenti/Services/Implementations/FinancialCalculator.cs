@@ -36,5 +36,34 @@ namespace DashboardInvestimenti.Services.Implementations
         {
             return value.ToString(ToStringFormat, CultureInfo);
         }
+
+        public string GetGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno)
+        {
+            if (chartModels is null)
+            {
+                throw new ArgumentNullException(nameof(chartModels));
+            }
+
+            if (!chartModels.Any())
+            {
+                coloreGuadagno = string.Empty;
+                return string.Empty;
+            }
+
+            var guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
+            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+            coloreGuadagno = guadagno >= 0 ? "green" : "red";
+            return segnoGuadagno + ToString(guadagno);
+        }
+
+        public string GetGuadagnoPercentuale(List<ChartModel> chartModels)
+        {
+            var investiti = chartModels.Last().Sottoscrizioni;
+            var guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
+            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+            var guadagnoPerc = ((guadagno) / investiti);
+
+            return segnoGuadagno + guadagnoPerc.ToString("P", CultureInfo);
+        }
     }
 }

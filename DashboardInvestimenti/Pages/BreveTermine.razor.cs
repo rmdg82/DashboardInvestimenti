@@ -88,7 +88,8 @@ namespace DashboardInvestimenti.Pages
         private string _ultimoValoreQuota = string.Empty;
         private string _mediaValoreQuota = string.Empty;
         private double _mediaValoreQuotaValue;
-        private string _guadagno = string.Empty;
+        private string _guadagnoNetto = string.Empty;
+        private string _guadagnoPercentuale = string.Empty;
         private string _coloreGuadagno = string.Empty;
         private string _totInvestiti = string.Empty;
 
@@ -246,10 +247,8 @@ namespace DashboardInvestimenti.Pages
             _mediaValoreQuotaValue = Calculator.GetAverageValoreQuota(chartModels);
             _mediaValoreQuota = Calculator.ToString(_mediaValoreQuotaValue);
 
-            double guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
-            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
-            _coloreGuadagno = guadagno >= 0 ? "green" : "red";
-            _guadagno = segnoGuadagno + Calculator.ToString(guadagno);
+            _guadagnoNetto = Calculator.GetGuadagnoNetto(chartModels, out _coloreGuadagno);
+            _guadagnoPercentuale = Calculator.GetGuadagnoPercentuale(chartModels);
             _totInvestiti = Calculator.ToString(chartModels.Last().Sottoscrizioni);
 
             ClearOldData();

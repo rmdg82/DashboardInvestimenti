@@ -59,5 +59,32 @@ namespace DashBoardInvestimenti.Tests
 
             Assert.Equal(expected, sut);
         }
+
+        [Fact]
+        public void GetGuadagnoNetto_ListEmpty_ReturnZero()
+        {
+            var sut = _financialCalculator.GetGuadagnoNetto(new List<ChartModel>(), out string coloreGuadagno);
+            Assert.Equal(string.Empty, sut);
+            Assert.Equal(string.Empty, coloreGuadagno);
+        }
+
+        [Theory]
+        [InlineData(1, 2)]
+        public void GetGuadagnoNetto_ListNotEmpty_ReturnCorrectValues(double int1, double int2)
+        {
+            var chartModels = new List<ChartModel>
+            {
+                new ChartModel
+                {
+                    ValoreInvestimento = int1,
+                    Sottoscrizioni = int2
+                },
+            };
+
+            var sut = _financialCalculator.GetGuadagnoNetto(chartModels, out string coloreGuadagno);
+            string result = "-1,00 €";
+
+            Assert.Equal(result, sut);
+        }
     }
 }
