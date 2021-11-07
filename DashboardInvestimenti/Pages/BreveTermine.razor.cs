@@ -247,8 +247,8 @@ namespace DashboardInvestimenti.Pages
             _mediaValoreQuotaValue = Calculator.GetAverageValoreQuota(chartModels);
             _mediaValoreQuota = Calculator.ToString(_mediaValoreQuotaValue);
 
-            _guadagnoNetto = Calculator.GetGuadagnoNetto(chartModels, out _coloreGuadagno);
-            _guadagnoPercentuale = Calculator.GetGuadagnoPercentuale(chartModels);
+            _guadagnoNetto = Calculator.GetLastGuadagnoNetto(chartModels, out _coloreGuadagno);
+            _guadagnoPercentuale = Calculator.GetLastGuadagnoPercentuale(chartModels);
             _totInvestiti = Calculator.ToString(chartModels.Last().Sottoscrizioni);
 
             ClearOldData();

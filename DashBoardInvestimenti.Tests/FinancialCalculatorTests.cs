@@ -61,30 +61,86 @@ namespace DashBoardInvestimenti.Tests
         }
 
         [Fact]
-        public void GetGuadagnoNetto_ListEmpty_ReturnZero()
+        public void GetLastGuadagnoNetto_ListEmpty_ReturnZero()
         {
-            var sut = _financialCalculator.GetGuadagnoNetto(new List<ChartModel>(), out string coloreGuadagno);
+            var sut = _financialCalculator.GetLastGuadagnoNetto(new List<ChartModel>(), out string coloreGuadagno);
             Assert.Equal(string.Empty, sut);
             Assert.Equal(string.Empty, coloreGuadagno);
         }
 
         [Theory]
-        [InlineData(1, 2)]
-        public void GetGuadagnoNetto_ListNotEmpty_ReturnCorrectValues(double int1, double int2)
+        [InlineData(125, 100)]
+        [InlineData(90, 100)]
+        public void GetLastGuadagnoNetto_ListNotEmpty_ReturnCorrectValues(double valore, double sottoscrizioni)
         {
             var chartModels = new List<ChartModel>
             {
                 new ChartModel
                 {
-                    ValoreInvestimento = int1,
-                    Sottoscrizioni = int2
+                    ValoreInvestimento = valore,
+                    Sottoscrizioni = sottoscrizioni
+                },
+            };
+            var guadagno = valore - sottoscrizioni;
+            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+            var expectedColoreGuadagno = guadagno >= 0 ? "green" : "red";
+            string result = segnoGuadagno + _financialCalculator.ToString(guadagno);
+
+            var sut = _financialCalculator.GetLastGuadagnoNetto(chartModels, out string coloreGuadagno);
+
+            Assert.Equal(result, sut);
+            Assert.Equal(expectedColoreGuadagno, coloreGuadagno);
+        }
+
+        [Theory]
+        [InlineData(125, 100)]
+        [InlineData(90, 100)]
+        public void GetLastGuadagnoPercentuale_ListNotEmpty_ReturnCorrectValues(double valore, double sottoscrizioni)
+        {
+            var chartModels = new List<ChartModel>
+            {
+                new ChartModel
+                {
+                    ValoreInvestimento = valore,
+                    Sottoscrizioni = sottoscrizioni
                 },
             };
 
-            var sut = _financialCalculator.GetGuadagnoNetto(chartModels, out string coloreGuadagno);
-            string result = "-1,00 €";
+            var guadagno = valore - sottoscrizioni;
+            var guadagnoPerc = guadagno / 100;
+            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+            string result = segnoGuadagno + guadagnoPerc.ToString("P", _financialCalculator.CultureInfo);
+
+            var sut = _financialCalculator.GetLastGuadagnoPercentuale(chartModels);
 
             Assert.Equal(result, sut);
+        }
+
+        [Fact]
+        public void GetLastGuadagnoPercentuale_ListEmpty_ReturnStringEmpty()
+        {
+            var sut = _financialCalculator.GetLastGuadagnoPercentuale(new List<ChartModel>());
+            Assert.Equal(string.Empty, sut);
+        }
+
+        [Fact]
+        public void GetGuadagnoPercentuale_NullValues_ReturnArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => _financialCalculator.GetGuadagnoPercentuale(null));
+        }
+
+        [Fact]
+        public void GetGuadagnoPercentuale_25UpValues_Return0_25Up()
+        {
+            var chartModel = new ChartModel
+            {
+                Sottoscrizioni = 100,
+                ValoreInvestimento = 125,
+            };
+
+            var sut = _financialCalculator.GetGuadagnoPercentuale(chartModel);
+
+            Assert.Equal(0.25, sut);
         }
     }
 }

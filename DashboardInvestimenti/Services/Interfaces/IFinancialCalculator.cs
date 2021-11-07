@@ -14,8 +14,8 @@ namespace DashboardInvestimenti.Services.Interfaces
 
         double GetAverageValoreQuota(List<ChartModel> chartModels);
 
-        string GetGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno);
+        string GetLastGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno);
 
-        string GetGuadagnoPercentuale(List<ChartModel> chartModels);
+        string GetLastGuadagnoPercentuale(List<ChartModel> chartModels);
     }
 }
