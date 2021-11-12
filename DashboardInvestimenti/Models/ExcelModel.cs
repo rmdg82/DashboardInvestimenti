@@ -1,7 +1,7 @@
 ﻿namespace DashboardInvestimenti.Models
 {
     /// <summary>
-    /// Model used to map the uploaded excel files
+    /// Model used to map the uploaded excel files.
     /// </summary>
     public class ExcelModel
     {

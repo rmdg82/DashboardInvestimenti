@@ -17,5 +17,7 @@ namespace DashboardInvestimenti.Services.Interfaces
         string GetLastGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno);
 
         string GetLastGuadagnoPercentuale(List<ChartModel> chartModels);
+
+        double GetGuadagnoPercentuale(ChartModel chartModel);
     }
 }

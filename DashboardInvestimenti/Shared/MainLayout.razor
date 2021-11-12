@@ -6,22 +6,12 @@
 
 <MudLayout>
     <MudAppBar Elevation="0" Color="Color.Info">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       OnClick="@((e) => DrawerToggle())">
-        </MudIconButton>
-        <MudText Typo="Typo.h4">Dashboard investimenti Gimme 5</MudText>
-        <MudAppBarSpacer />
+        <MudText Typo="Typo.h4" >Dashboard investimenti Gimme 5</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Inherit" Link="/" Target="_blank"></MudIconButton>
         <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Link="https://mudblazor.com/" Target="_blank"></MudIconButton>
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/rmdg82/DashboardInvestimenti" Target="_blank"></MudIconButton>
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h4">Fondi</MudText>
-        </MudDrawerHeader>
-        <NavMenu />
-    </MudDrawer>
     <MudMainContent>
         @Body
     </MudMainContent>

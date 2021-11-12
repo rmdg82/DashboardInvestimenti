@@ -1,10 +1,11 @@
-﻿@page "/breve"
+﻿@page "/"
+@page "/chart"
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
     <MudGrid>
         <MudItem xs="9">
-            <MudText Typo="Typo.h3" GutterBottom="true">Fondo Acomea Breve Termine</MudText>
-            <MudText Typo="Typo.h6" GutterBottom="true">Id contratto: @NomeContratto</MudText>
+            <MudText Typo="Typo.h3" GutterBottom="true">Fondo: @ContractName</MudText>
+            <MudText Typo="Typo.h6" GutterBottom="true">Id contratto: @ContractId</MudText>
         </MudItem>
         <MudItem xs="3">
             <InputFile id="fileInput" OnChange="UploadFile" hidden accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></InputFile>
@@ -31,7 +32,7 @@
         <MudCardContent>
             @if (_isFileLoaded)
             {
-                <Chart Config="_config1" Width="100" Height="40"></Chart>
+                <Chart Config="_chart1Config" Width="100" Height="40"></Chart>
             }
             else
             {
@@ -50,7 +51,7 @@
         <MudCardContent>
             @if (_isFileLoaded)
             {
-                <Chart Config="_config2" Width="100" Height="40"></Chart>
+                <Chart Config="_chart2Config" Width="100" Height="40"></Chart>
             }
             else
             {

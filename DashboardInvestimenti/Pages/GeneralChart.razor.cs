@@ -1,6 +1,10 @@
 ﻿using Blazored.SessionStorage;
 using ChartJs.Blazor.Common;
+using ChartJs.Blazor.Common.Axes;
+using ChartJs.Blazor.Common.Axes.Ticks;
 using ChartJs.Blazor.Common.Enums;
+using ChartJs.Blazor.Common.Handlers;
+using ChartJs.Blazor.Interop;
 using ChartJs.Blazor.LineChart;
 using ChartJs.Blazor.Util;
 using DashboardInvestimenti.Helpers;
@@ -12,14 +16,14 @@ using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DashboardInvestimenti.Pages
 {
-    public partial class Prudente
+    public partial class GeneralChart
     {
         [Inject]
         public ISessionStorageService SessionStorageService { get; set; }
@@ -37,15 +41,13 @@ namespace DashboardInvestimenti.Pages
         public IFinancialCalculator Calculator { get; set; }
 
         public List<string> PeriodoTemporale { get; set; } = new();
-        public List<double> ValoreQuote { get; set; } = new();
-        public List<double> ValoreInvestimento { get; set; } = new();
+        public List<double> Chart1Data { get; set; } = new();
+        public List<double> Chart2Data { get; set; } = new();
 
-        private readonly string _prudenteFileRowsSessionKey = "prudenteFileRows";
-        private readonly string _prudenteDocDataSessionKey = "prudenteDataDoc";
+        public string ContractId { get; set; }
+        public string ContractName { get; set; }
 
-        private string NomeContratto => Configuration["IdContratti:prudente"];
-
-        private readonly LineConfig _config1 = new()
+        private readonly LineConfig _chart1Config = new()
         {
             Options = new LineOptions
             {
@@ -65,7 +67,7 @@ namespace DashboardInvestimenti.Pages
             }
         };
 
-        private readonly LineConfig _config2 = new()
+        private readonly LineConfig _chart2Config = new()
         {
             Options = new LineOptions
             {
@@ -80,11 +82,26 @@ namespace DashboardInvestimenti.Pages
                     Mode = InteractionMode.Nearest,
                     Intersect = true
                 },
-                Legend = new Legend() { Display = false }
+                Legend = new Legend() { Display = false },
+                Scales = new Scales
+                {
+                    YAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                            Ticks = new LinearCartesianTicks
+                            {
+                                SuggestedMax = 14,
+                                SuggestedMin = 10,
+                                StepSize = 2,
+                            }
+                        }
+                    },
+                }
             },
         };
 
-        private bool _isFileLoaded;
+        private bool _isFileLoaded = false;
         private string _dataDocumento = string.Empty;
         private string _ultimoValoreQuota = string.Empty;
         private string _mediaValoreQuota = string.Empty;
@@ -93,28 +110,6 @@ namespace DashboardInvestimenti.Pages
         private string _guadagnoPercentuale = string.Empty;
         private string _coloreGuadagno = string.Empty;
         private string _totInvestiti = string.Empty;
-
-        protected override async Task OnInitializedAsync()
-        {
-            if (await SessionStorageService.ContainKeyAsync(_prudenteFileRowsSessionKey))
-            {
-                List<ExcelModel> fileRows =
-                    await SessionStorageService.GetItemAsync<List<ExcelModel>>(_prudenteFileRowsSessionKey);
-                if (await SessionStorageService.ContainKeyAsync(_prudenteDocDataSessionKey))
-                {
-                    _dataDocumento = await SessionStorageService.GetItemAsync<string>(_prudenteDocDataSessionKey);
-                }
-
-                PopulateData(fileRows);
-                GenerateCharts();
-                _isFileLoaded = true;
-                StateHasChanged();
-            }
-            else
-            {
-                _isFileLoaded = false;
-            }
-        }
 
         private List<ExcelModel> ReadContent(byte[] excelContent, bool reverseRows)
         {
@@ -134,20 +129,33 @@ namespace DashboardInvestimenti.Pages
 
         private async Task UploadFile(InputFileChangeEventArgs e)
         {
-            if (!(await IsFileNameCorrect(e)))
+            if (!await IsFileNameCorrect(e))
             {
                 return;
             }
-            List<ExcelModel> fileRows = await GenerateRowsFromFile(e);
+
+            (ContractId, ContractName) = GetContractInfos(e.File.Name);
+
+            var fileRows = await GenerateRowsFromFile(e);
             PopulateData(fileRows);
             GenerateCharts();
-
-            await SessionStorageService.SetItemAsync(_prudenteFileRowsSessionKey, fileRows);
-            await SessionStorageService.SetItemAsync(_prudenteDocDataSessionKey, _dataDocumento);
-
             _isFileLoaded = true;
-
             StateHasChanged();
+        }
+
+        private (string contractId, string contractName) GetContractInfos(string fileName)
+        {
+            var splittedName = fileName.Split('_');
+            var contractId = splittedName[0];
+            var contractName = GetContractName(contractId);
+
+            return (contractId, contractName);
+
+            string GetContractName(string contractId)
+            {
+                var contractName = Configuration[$"Contracts:{contractId}"];
+                return contractName;
+            }
         }
 
         private async Task<List<ExcelModel>> GenerateRowsFromFile(InputFileChangeEventArgs e)
@@ -171,12 +179,6 @@ namespace DashboardInvestimenti.Pages
                 return false;
             }
 
-            if (splittedName[0] != NomeContratto)
-            {
-                await DialogService.ShowMessageBox("Attenzione", $"Il nome del file '{e.File.Name}' non è compatibile con il tipo di contratto '{NomeContratto}'!");
-                return false;
-            }
-
             try
             {
                 var dateFromFile = DateTime.Parse(splittedName[2]);
@@ -194,8 +196,8 @@ namespace DashboardInvestimenti.Pages
         private void ClearOldData()
         {
             PeriodoTemporale.Clear();
-            ValoreQuote.Clear();
-            ValoreInvestimento.Clear();
+            Chart1Data.Clear();
+            Chart2Data.Clear();
             ClearChartsData();
         }
 
@@ -203,41 +205,44 @@ namespace DashboardInvestimenti.Pages
         {
             foreach (var periodo in PeriodoTemporale)
             {
-                _config1.Data.Labels.Add(periodo);
-                _config2.Data.Labels.Add(periodo);
+                _chart1Config.Data.Labels.Add(periodo);
+                _chart2Config.Data.Labels.Add(periodo);
             }
 
-            IDataset<double> valoreQuoteDataSet = new LineDataset<double>(ValoreQuote)
+            // Quote value on chart1
+            IDataset<double> valoreQuoteDataSet = new LineDataset<double>(Chart1Data)
             {
                 BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Red),
                 BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Red),
                 Fill = FillingMode.Disabled,
             };
 
-            IDataset<double> valoreQuotaAverageDataSet = new LineDataset<double>(Enumerable.Repeat<double>(_mediaValoreQuotaValue, ValoreQuote.Count))
+            // Average quote on chart1
+            IDataset<double> valoreQuotaAverageDataSet = new LineDataset<double>(Enumerable.Repeat<double>(_mediaValoreQuotaValue, Chart1Data.Count))
             {
                 BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.PaleGreen),
                 Fill = FillingMode.Disabled,
             };
 
-            IDataset<double> valoreInvDataSet = new LineDataset<double>(ValoreInvestimento)
+            // Total Investment value on chart2
+            IDataset<double> valoreInvDataSet = new LineDataset<double>(Chart2Data)
             {
                 BackgroundColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
                 BorderColor = ColorUtil.FromDrawingColor(System.Drawing.Color.Blue),
                 Fill = FillingMode.Disabled
             };
 
-            _config1.Data.Datasets.Add(valoreQuoteDataSet);
-            _config1.Data.Datasets.Add(valoreQuotaAverageDataSet);
-            _config2.Data.Datasets.Add(valoreInvDataSet);
+            _chart1Config.Data.Datasets.Add(valoreQuoteDataSet);
+            _chart1Config.Data.Datasets.Add(valoreQuotaAverageDataSet);
+            _chart2Config.Data.Datasets.Add(valoreInvDataSet);
         }
 
         private void ClearChartsData()
         {
-            _config1.Data.Labels.Clear();
-            _config1.Data.Datasets.Clear();
-            _config2.Data.Labels.Clear();
-            _config2.Data.Datasets.Clear();
+            _chart1Config.Data.Labels.Clear();
+            _chart1Config.Data.Datasets.Clear();
+            _chart2Config.Data.Labels.Clear();
+            _chart2Config.Data.Datasets.Clear();
         }
 
         private void PopulateData(List<ExcelModel> fileRows)
@@ -256,8 +261,9 @@ namespace DashboardInvestimenti.Pages
             foreach (var chartModel in chartModels)
             {
                 PeriodoTemporale.Add(chartModel.Data);
-                ValoreQuote.Add(chartModel.ValoreQuota);
-                ValoreInvestimento.Add(chartModel.ValoreInvestimento);
+                Chart1Data.Add(chartModel.ValoreQuota);
+                //Chart2Data.Add(chartModel.ValoreInvestimento);
+                Chart2Data.Add(Math.Round((Calculator.GetGuadagnoPercentuale(chartModel) * 100), 2));
             }
         }
     }
