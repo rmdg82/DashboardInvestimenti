@@ -5,86 +5,85 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace DashboardInvestimenti.Services.Implementations
+namespace DashboardInvestimenti.Services.Implementations;
+
+public class FinancialCalculator : IFinancialCalculator
 {
-    public class FinancialCalculator : IFinancialCalculator
+    public string ToStringFormat { get; private set; } = "C";
+    public CultureInfo CultureInfo { get; private set; } = CultureInfo.CreateSpecificCulture("it-IT");
+
+    public int FractionalDigits { get; private set; } = 4;
+
+    public double GetAverageValoreQuota(List<ChartModel> chartModels)
     {
-        public string ToStringFormat { get; private set; } = "C";
-        public CultureInfo CultureInfo { get; private set; } = CultureInfo.CreateSpecificCulture("it-IT");
-
-        public int FractionalDigits { get; private set; } = 4;
-
-        public double GetAverageValoreQuota(List<ChartModel> chartModels)
+        if (chartModels is null)
         {
-            if (chartModels is null)
-            {
-                throw new ArgumentNullException(nameof(chartModels));
-            }
-
-            if (!chartModels.Any())
-            {
-                return 0;
-            }
-
-            var sumValoriQuota = chartModels.Sum(line => line.ValoreQuota);
-            int numLines = chartModels.Count;
-
-            return Math.Round(sumValoriQuota / numLines, FractionalDigits);
+            throw new ArgumentNullException(nameof(chartModels));
         }
 
-        public string ToString(double value)
+        if (!chartModels.Any())
         {
-            return value.ToString(ToStringFormat, CultureInfo);
+            return 0;
         }
 
-        public string GetLastGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno)
+        var sumValoriQuota = chartModels.Sum(line => line.ValoreQuota);
+        int numLines = chartModels.Count;
+
+        return Math.Round(sumValoriQuota / numLines, FractionalDigits);
+    }
+
+    public string ToString(double value)
+    {
+        return value.ToString(ToStringFormat, CultureInfo);
+    }
+
+    public string GetLastGuadagnoNetto(List<ChartModel> chartModels, out string coloreGuadagno)
+    {
+        if (chartModels is null)
         {
-            if (chartModels is null)
-            {
-                throw new ArgumentNullException(nameof(chartModels));
-            }
-
-            if (!chartModels.Any())
-            {
-                coloreGuadagno = string.Empty;
-                return string.Empty;
-            }
-
-            var guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
-            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
-            coloreGuadagno = guadagno >= 0 ? "green" : "red";
-            return segnoGuadagno + ToString(guadagno);
+            throw new ArgumentNullException(nameof(chartModels));
         }
 
-        public string GetLastGuadagnoPercentuale(List<ChartModel> chartModels)
+        if (!chartModels.Any())
         {
-            if (chartModels is null)
-            {
-                throw new ArgumentNullException(nameof(chartModels));
-            }
-
-            if (!chartModels.Any())
-            {
-                return string.Empty;
-            }
-
-            var guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
-            string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
-            var guadagnoPerc = GetGuadagnoPercentuale(chartModels.Last());
-
-            return segnoGuadagno + guadagnoPerc.ToString("P", CultureInfo);
+            coloreGuadagno = string.Empty;
+            return string.Empty;
         }
 
-        public double GetGuadagnoPercentuale(ChartModel chartModel)
+        var guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
+        string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+        coloreGuadagno = guadagno >= 0 ? "green" : "red";
+        return segnoGuadagno + ToString(guadagno);
+    }
+
+    public string GetLastGuadagnoPercentuale(List<ChartModel> chartModels)
+    {
+        if (chartModels is null)
         {
-            if (chartModel is null)
-            {
-                throw new ArgumentNullException(nameof(chartModel));
-            }
-
-            var guadagno = chartModel.ValoreInvestimento - chartModel.Sottoscrizioni;
-
-            return guadagno / chartModel.Sottoscrizioni;
+            throw new ArgumentNullException(nameof(chartModels));
         }
+
+        if (!chartModels.Any())
+        {
+            return string.Empty;
+        }
+
+        var guadagno = chartModels.Last().ValoreInvestimento - chartModels.Last().Sottoscrizioni;
+        string segnoGuadagno = guadagno >= 0 ? "+ " : string.Empty;
+        var guadagnoPerc = GetGuadagnoPercentuale(chartModels.Last());
+
+        return segnoGuadagno + guadagnoPerc.ToString("P", CultureInfo);
+    }
+
+    public double GetGuadagnoPercentuale(ChartModel chartModel)
+    {
+        if (chartModel is null)
+        {
+            throw new ArgumentNullException(nameof(chartModel));
+        }
+
+        var guadagno = chartModel.ValoreInvestimento - chartModel.Sottoscrizioni;
+
+        return guadagno / chartModel.Sottoscrizioni;
     }
 }
