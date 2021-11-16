@@ -1,0 +1,125 @@
+﻿@page "/"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-2">
+    <MudGrid>
+        <MudItem xs="12" sm="9">
+            <MudText Typo="Typo.h3" GutterBottom="true">Fondo: @ViewModel.ContractName</MudText>
+            <MudText Typo="Typo.h6" GutterBottom="true">Id contratto: @ViewModel.ContractId</MudText>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <InputFile id="fileInput" OnChange="UploadFile" hidden accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></InputFile>
+            <MudButton Class="d-flex align-center justify-center mud-width-full mt-3"
+                       HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       StartIcon="@Icons.Filled.UploadFile"
+                       for="fileInput">
+                Upload excel file
+            </MudButton>
+            @if (_isFileLoaded )
+            {
+                <MudText>Data documento: @ViewModel.DocDate</MudText>
+            }
+        </MudItem>
+        @if (_isFileLoaded)
+        {
+            <MudItem xs="12" sm="4">
+                <MudCard Elevation="2" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5">Guadagno/perdita</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6" Style="@($"color:{_coloreGuadagno}")">@ViewModel.GainLoss (@ViewModel.GainLossPercentage)</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudCard Elevation="2" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5">Valore investito</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@ViewModel.Sottoscrizioni</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudCard Elevation="2" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5">Valore disponibile </MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@ViewModel.ValoreDisponibile</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12"> 
+                <MudCard Outlined="true" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Andamento valore quota </MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (_isFileLoaded)
+                        {
+                            <Chart Config="_chart1Config" Width="100" Height="40"></Chart>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Nessun file caricato!</MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard Outlined="true" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Andamento percentuale guadagno/perdita </MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (_isFileLoaded)
+                        {
+                            <Chart Config="_chart2Config" Width="100" Height="40"></Chart>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Nessun file caricato!</MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+        }
+        else
+        {
+            <MudItem xs="12">
+                <MudCard Elevation="2" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">
+                            </MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Nessun file caricato!</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+
+        
+     </MudGrid>
+</MudContainer>

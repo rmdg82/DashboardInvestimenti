@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace DashboardInvestimenti.Pages;
 
-public partial class GeneralChart
+public partial class Home
 {
     [Inject]
     public ISessionStorageService SessionStorageService { get; set; }
@@ -35,14 +35,11 @@ public partial class GeneralChart
     public IExcelReader<ExcelModel> ExcelReader { get; set; }
 
     [Inject]
-    public IFinancialCalculator Calculator { get; set; }
+    public IFinancialCalculator FinancialCalculator { get; set; }
 
     public List<string> PeriodoTemporale { get; set; } = new();
     public List<double> Chart1Data { get; set; } = new();
     public List<double> Chart2Data { get; set; } = new();
-
-    public string ContractId { get; set; }
-    public string ContractName { get; set; }
 
     private readonly LineConfig _chart1Config = new()
     {
@@ -98,15 +95,11 @@ public partial class GeneralChart
         },
     };
 
+    public HomeViewModel ViewModel { get; set; } = new();
+
     private bool _isFileLoaded = false;
-    private string _dataDocumento = string.Empty;
-    private string _ultimoValoreQuota = string.Empty;
-    private string _mediaValoreQuota = string.Empty;
     private double _mediaValoreQuotaValue;
-    private string _guadagnoNetto = string.Empty;
-    private string _guadagnoPercentuale = string.Empty;
     private string _coloreGuadagno = string.Empty;
-    private string _totInvestiti = string.Empty;
 
     private List<ExcelModel> ReadContent(byte[] excelContent, bool reverseRows)
     {
@@ -131,7 +124,7 @@ public partial class GeneralChart
             return;
         }
 
-        (ContractId, ContractName) = GetContractInfos(e.File.Name);
+        (ViewModel.ContractId, ViewModel.ContractName) = GetContractInfos(e.File.Name);
 
         var fileRows = await GenerateRowsFromFile(e);
         PopulateData(fileRows);
@@ -179,7 +172,7 @@ public partial class GeneralChart
         try
         {
             var dateFromFile = DateTime.Parse(splittedName[2]);
-            _dataDocumento = dateFromFile.ToString("d/M/yyyy");
+            ViewModel.DocDate = dateFromFile.ToString("d/M/yyyy");
         }
         catch (FormatException)
         {
@@ -246,13 +239,14 @@ public partial class GeneralChart
     {
         List<ChartModel> chartModels = DataMapperHelper.MapToChartModel(fileRows);
 
-        _ultimoValoreQuota = Calculator.ToString(chartModels.Last().ValoreQuota);
-        _mediaValoreQuotaValue = Calculator.GetAverageValoreQuota(chartModels);
-        _mediaValoreQuota = Calculator.ToString(_mediaValoreQuotaValue);
+        ViewModel.ValoreQuota = FinancialCalculator.ToString(chartModels.Last().ValoreQuota);
+        ViewModel.AverageValoreQuota = FinancialCalculator.ToString(_mediaValoreQuotaValue);
+        ViewModel.GainLoss = FinancialCalculator.GetLastGuadagnoNetto(chartModels, out _coloreGuadagno);
+        ViewModel.GainLossPercentage = FinancialCalculator.GetLastGuadagnoPercentuale(chartModels);
+        ViewModel.Sottoscrizioni = FinancialCalculator.ToString(chartModels.Last().Sottoscrizioni);
+        ViewModel.ValoreDisponibile = FinancialCalculator.ToString(chartModels.Last().ValoreInvestimento);
 
-        _guadagnoNetto = Calculator.GetLastGuadagnoNetto(chartModels, out _coloreGuadagno);
-        _guadagnoPercentuale = Calculator.GetLastGuadagnoPercentuale(chartModels);
-        _totInvestiti = Calculator.ToString(chartModels.Last().Sottoscrizioni);
+        _mediaValoreQuotaValue = FinancialCalculator.GetAverageValoreQuota(chartModels);
 
         ClearOldData();
         foreach (var chartModel in chartModels)
@@ -260,7 +254,7 @@ public partial class GeneralChart
             PeriodoTemporale.Add(chartModel.Data);
             Chart1Data.Add(chartModel.ValoreQuota);
             //Chart2Data.Add(chartModel.ValoreInvestimento);
-            Chart2Data.Add(Math.Round((Calculator.GetGuadagnoPercentuale(chartModel) * 100), 2));
+            Chart2Data.Add(Math.Round((FinancialCalculator.GetGuadagnoPercentuale(chartModel) * 100), 2));
         }
     }
 }
