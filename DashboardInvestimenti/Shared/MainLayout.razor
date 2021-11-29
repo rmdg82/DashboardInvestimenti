@@ -7,12 +7,16 @@
 <MudLayout>
     <MudAppBar Elevation="2" Color="Color.Primary">
         <MudText Typo="Typo.h4" >Dashboard investimenti Gimme 5</MudText>
-        <MudTooltip Text="Open in a new tab">
-            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Inherit" Link="/" Target="_blank"></MudIconButton>
-        </MudTooltip>
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Link="https://mudblazor.com/" Target="_blank"></MudIconButton>
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/rmdg82/DashboardInvestimenti" Target="_blank"></MudIconButton>
+        <MudTooltip Text="Open in a new tab">
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Size="Size.Large" Color="Color.Inherit" Link="/" Target="_blank"></MudIconButton>
+        </MudTooltip>
+        <MudTooltip Text="MudBlazor">
+            <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Link="https://mudblazor.com/" Target="_blank"></MudIconButton>
+        </MudTooltip>
+        <MudTooltip Text="Github">
+            <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/rmdg82/DashboardInvestimenti" Target="_blank"></MudIconButton>
+        </MudTooltip>
     </MudAppBar>
     <MudMainContent>
         @Body
